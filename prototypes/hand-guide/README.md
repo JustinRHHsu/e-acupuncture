@@ -14,4 +14,13 @@
 
 預期網站位址為 `https://justinrhhsu.github.io/e-acupuncture/`；分支推送本身不代表 Pages 已啟用或網址已可用。
 
-更新本目錄並提交到 `main` 後，可從專案根目錄執行 `git subtree split --prefix prototypes/hand-guide -b pages-update`，再以 `git push origin pages-update:gh-pages` 更新發布分支。請確認遠端版本並保留後續變更，不使用強制推送。
+更新本目錄並提交到 `main` 後，可從專案根目錄執行以下命令，以本目錄內容建立下一個發布提交，無須安裝 `git subtree`：
+
+```sh
+git fetch origin gh-pages
+pages_tree=$(git rev-parse HEAD:prototypes/hand-guide)
+pages_commit=$(git commit-tree "$pages_tree" -p origin/gh-pages -m "Update hand-guide site")
+git push origin "$pages_commit":gh-pages
+```
+
+發布分支僅用來部署，由 `main` 中的本目錄作為來源。更新前請確認遠端變更；不使用強制推送。
