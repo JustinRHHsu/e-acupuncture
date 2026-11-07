@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="theme-color" content="#203f36">
+  <title>尬電儀 God Damn IT｜你的隨身 AI 中醫師</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <svg class="sprite" aria-hidden="true"><defs>
+    <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 11.5a8.5 8.5 0 0 1-12 7.7L3 21l1.7-5A8.5 8.5 0 1 1 20 11.5Z"/><path d="M8 11h.01M12 11h.01M16 11h.01"/></symbol>
+    <symbol id="i-hand" viewBox="0 0 24 24"><path d="M8 12V5a1.5 1.5 0 0 1 3 0v6-8a1.5 1.5 0 0 1 3 0v8-6a1.5 1.5 0 0 1 3 0v7-4a1.5 1.5 0 0 1 3 0v8c0 4-2 6-6 6h-1c-3 0-4-2-6-4l-3-4c-1-2 1-3 2-2l2 2Z"/></symbol>
+    <symbol id="i-book" viewBox="0 0 24 24"><path d="M5 3h14v18H5a2 2 0 0 1 0-4h14M5 3a2 2 0 0 0-2 2v14M8 7h7M8 11h5"/></symbol>
+    <symbol id="i-arrow" viewBox="0 0 24 24"><path d="m9 5 7 7-7 7M3 12h13"/></symbol>
+    <symbol id="i-leaf" viewBox="0 0 24 24"><path d="M20 3C8 1 2 7 5 14s15 5 15-11ZM3 21 16 8"/></symbol>
+    <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+    <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12 4 4L19 6"/></symbol>
+    <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 16V3m-5 5 5-5 5 5M4 15v6h16v-6"/></symbol>
+    <symbol id="i-voice" viewBox="0 0 24 24"><path d="m11 4-6 5H2v6h3l6 5V4Zm5 4c2 2 2 6 0 8m3-11c4 4 4 10 0 14"/></symbol>
+  </defs></svg>
+  <header class="topbar">
+    <a class="brand" href="#" aria-label="尬電儀首頁"><span class="brand-mark">≈</span><span><strong>尬電儀 <span class="brand-en">God Damn IT</span></strong><small>你的隨身 AI 中醫師</small></span></a>
+    <div class="header-right"><span class="prototype-badge">互動概念原型</span><span class="profile">你</span></div>
+  </header>
+  <div class="app-shell">
+    <nav class="sidebar" aria-label="主要導覽">
+      <button class="nav-button active" data-view="conversation"><svg><use href="#i-chat"/></svg><span>聊一聊</span></button>
+      <button class="nav-button" data-view="map"><svg><use href="#i-hand"/></svg><span>穴位地圖</span></button>
+      <button class="nav-button" data-view="journal"><svg><use href="#i-book"/></svg><span>健康日誌</span></button>
+      <div class="nav-bottom"><svg><use href="#i-leaf"/></svg><span>好好照顧<br>每一天</span></div>
+    </nav>
+    <main class="workspace">
+      <div class="page-heading"><div><span class="eyebrow">A LITTLE CARE, EVERY DAY</span><h1 id="page-title">留一點時間，給自己。</h1></div><span id="today" class="date-label"></span></div>
+      <div class="consultation-layout">
+        <section class="doctor-stage" aria-label="虛擬中醫師角色">
+          <div class="stage-grain"></div><div class="stage-orbit orbit-one"></div><div class="stage-orbit orbit-two"></div>
+          <div class="stage-status"><span class="status-dot"></span><span id="doctor-status">知安在這裡，聽你說</span></div>
+          <div class="stage-copy"><span>YOUR EVERYDAY COMPANION</span><h2>慢慢說，<br>我在這裡。</h2><p>不只在不舒服的時候<br>平常，也一起關心自己。</p></div>
+          <button id="voice-toggle" class="voice-button" aria-label="開啟角色語音" aria-pressed="false"><svg aria-hidden="true"><use href="#i-voice"/></svg><span>語音關閉</span></button>
+          <div id="avatar" class="avatar-frame" role="button" tabindex="0" aria-label="和知安打招呼；可觸控拖曳角色"><img id="doctor-image" src="assets/doctor.png" alt="知安：穿著米白中式醫師服的成年虛擬中醫師" draggable="false"><canvas id="avatar-canvas" aria-hidden="true"></canvas></div>
+          <span class="touch-hint" id="touch-hint">輕點知安，打個招呼 <span>↗</span></span>
+          <div class="doctor-name"><span class="name-line">知安 <span>虛擬中醫師</span></span><span class="name-caption">溫柔陪伴，從一句問候開始</span></div>
+          <div class="stage-dialogue"><span class="dialogue-label"><span class="spark">✧</span> 知安想對你說</span><p id="stage-message">「今天感覺怎麼樣？我們一起整理一下。」</p></div>
+          <span class="animation-label">互動 2D 角色 · 非 Cubism 模型</span>
+        </section>
+        <section class="interaction-panel" id="interaction-panel" aria-label="互動區"></section>
+      </div>
+      <footer class="page-footer"><span><span class="tiny-dot"></span> 產品概念示意｜非醫療診斷</span><span>示範流程，未連接 AI 或設備。紀錄僅儲存於此瀏覽器。</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  <script src="acupoints.js"></script><script src="avatar.js"></script><script src="app.js"></script>
+</body>
+</html>

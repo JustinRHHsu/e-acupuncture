@@ -1,0 +1,7 @@
+{
+  "name": "god-damn-it-prototype",
+  "version": "0.1.0",
+  "private": true,
+  "description": "尬電儀：虛擬中醫師互動概念原型",
+  "scripts": {"start": "python3 -m http.server 3000 --bind 0.0.0.0", "check": "node --check app.js && node --check avatar.js && node --check acupoints.js"}
+}
