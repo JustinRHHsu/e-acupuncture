@@ -2,6 +2,15 @@
 
 你的隨身 AI 中醫師 — 手機優先的 Mobile Web App 概念原型。
 
+## 原型版本
+
+| 版本 | 入口 | 內容 |
+| --- | --- | --- |
+| 尬電儀 Mobile Web App | [index.html](index.html) | 互動虛擬角色、引導對話、穴位參考圖、個人健康日誌 |
+| 手穴導引（另版原型） | [prototypes/hand-guide/index.html](prototypes/hand-guide/index.html) | 可旋轉的 3D 手部模型、左右手與掌背切換、症狀挑選及穴位瀏覽 |
+
+兩個版本共用下方啟動方式。啟動後，主版位於網站根目錄，另版位於 `/prototypes/hand-guide/`。
+
 ## 開啟
 
 在此 checkout 內執行 `npm start`，以 HTTP 開啟連接埠 3000。無須安裝套件；需要 Python 3 與 Node.js（語法檢查用）。`npm run check` 檢查 JavaScript 語法。
