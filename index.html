@@ -1,0 +1,720 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>手穴導引</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg1:#f1f4f8; --bg2:#dde5ee; --ink:#13202c; --ink2:#5d6b7a; --ink3:#8b98a6;
+  --line:rgba(19,60,90,.12); --glass:rgba(255,255,255,.62); --glass2:rgba(255,255,255,.82);
+  --cyan:#139fc4; --cyan-soft:rgba(19,159,196,.10); --hot:#ff6a3d; --hot-soft:rgba(255,106,61,.12);
+  --warn:#c9432c; --warn-bg:rgba(201,67,44,.08); --palm:#ff6a3d; --back:#7b61ff;
+  --mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",system-ui,sans-serif;background:var(--bg1);color:var(--ink);overflow:hidden}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
+#app{height:100dvh;display:flex;flex-direction:column;max-width:560px;margin:0 auto;position:relative;
+  background:
+    radial-gradient(60% 40% at 50% 32%,rgba(19,159,196,.14),transparent 70%),
+    linear-gradient(180deg,#f4f7fa 0%,var(--bg1) 45%,var(--bg2) 100%)}
+header{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px 4px;padding-top:max(14px,env(safe-area-inset-top));position:relative;z-index:1}
+.eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--cyan);text-transform:uppercase}
+.brand h1{font-size:19px;font-weight:700;letter-spacing:.04em;margin-top:2px}
+.seg{display:inline-flex;background:var(--glass);border:1px solid var(--glass2);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-radius:12px;padding:3px;flex:none}
+.seg button{font-size:13px;padding:6px 12px;border-radius:9px;color:var(--ink2);transition:background .2s,color .2s}
+.seg button.on{background:var(--ink);color:#fff;font-weight:500}
+
+#stage{position:relative;flex:1 1 auto;min-height:240px;
+  background-image:linear-gradient(rgba(19,60,90,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(19,60,90,.06) 1px,transparent 1px);
+  background-size:28px 28px;background-position:center;
+  -webkit-mask-image:radial-gradient(80% 75% at 50% 45%,#000 55%,transparent 100%);mask-image:radial-gradient(80% 75% at 50% 45%,#000 55%,transparent 100%)}
+#stageWrap{position:relative;flex:1 1 auto;display:flex;min-height:240px}
+#stageWrap #stage{flex:1}
+#stage canvas{display:block;width:100%;height:100%;touch-action:none;outline:none}
+#labels{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hud{position:absolute;inset:10px 16px;pointer-events:none}
+.hud i{position:absolute;width:14px;height:14px;border-color:rgba(19,159,196,.55);border-style:solid;border-width:0}
+.hud i:nth-child(1){left:0;top:0;border-left-width:1.5px;border-top-width:1.5px}
+.hud i:nth-child(2){right:0;top:0;border-right-width:1.5px;border-top-width:1.5px}
+.hud i:nth-child(3){left:0;bottom:0;border-left-width:1.5px;border-bottom-width:1.5px}
+.hud i:nth-child(4){right:0;bottom:0;border-right-width:1.5px;border-bottom-width:1.5px}
+.tag{position:absolute;left:0;top:0;background:rgba(14,26,38,.9);color:#fff;font-size:13px;font-weight:500;
+  padding:4px 10px;border-radius:8px;white-space:nowrap;border:1px solid rgba(19,159,196,.7);box-shadow:0 4px 14px rgba(10,30,50,.25)}
+.num{position:absolute;left:0;top:0;width:20px;height:20px;border-radius:50%;
+  background:rgba(255,255,255,.85);color:var(--hot);border:1.5px solid var(--hot);font-family:var(--mono);font-size:10.5px;font-weight:500;display:grid;place-items:center}
+.num.done{background:var(--hot);color:#fff}
+.viewbadge{position:absolute;left:28px;bottom:20px;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;color:var(--ink2);pointer-events:none}
+.viewbadge b{color:var(--cyan);font-weight:500}
+.viewbtns{position:absolute;right:28px;bottom:14px;display:flex;gap:6px}
+.viewbtns button{font-size:12px;background:var(--glass);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:1px solid var(--glass2);padding:5px 10px;border-radius:9px;color:var(--ink2)}
+#loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink2);font-family:var(--mono);font-size:12px;letter-spacing:.1em}
+
+#sheet{flex:0 0 auto;height:min(44dvh,400px);margin:0 12px max(12px,env(safe-area-inset-bottom));
+  background:var(--glass);backdrop-filter:blur(20px) saturate(1.3);-webkit-backdrop-filter:blur(20px) saturate(1.3);
+  border:1px solid var(--glass2);border-radius:22px;box-shadow:0 12px 32px rgba(20,50,80,.12),inset 0 1px 0 #fff;
+  display:flex;flex-direction:column;overflow:hidden}
+.tabs{display:flex;gap:4px;margin:10px 12px 0;padding:3px;background:rgba(19,32,44,.05);border-radius:12px}
+.tabs button{flex:1;padding:8px 0;font-size:14px;color:var(--ink2);border-radius:9px;transition:background .2s}
+.tabs button.on{background:#fff;color:var(--ink);font-weight:700;box-shadow:0 1px 4px rgba(20,50,80,.12)}
+#panel{flex:1;overflow-y:auto;padding:14px 16px 28px;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:thin;
+  -webkit-mask-image:linear-gradient(180deg,transparent 0,#000 12px,#000 calc(100% - 32px),transparent 100%);
+          mask-image:linear-gradient(180deg,transparent 0,#000 12px,#000 calc(100% - 32px),transparent 100%)}
+
+.group{margin-bottom:14px}
+.group h3{font-family:var(--mono);font-size:10.5px;color:var(--ink3);font-weight:500;margin-bottom:8px;letter-spacing:.1em}
+.chips{display:flex;flex-wrap:wrap;gap:7px}
+.chip{padding:7px 12px;border-radius:10px;background:rgba(255,255,255,.75);border:1px solid var(--line);font-size:14px;display:inline-flex;align-items:center;gap:6px;transition:border-color .15s,transform .1s}
+.chip:hover{border-color:var(--cyan)}
+.chip:active{transform:scale(.97)}
+.chip .dot{width:6px;height:6px;border-radius:50%;background:var(--warn)}
+.chip.sm{font-size:13.5px;padding:6px 11px}
+.chip.on{background:var(--ink);border-color:var(--ink);color:#fff}
+.legend{font-size:12px;color:var(--ink2);display:flex;align-items:center;gap:6px;margin-top:2px}
+.legend .dot{width:6px;height:6px;border-radius:50%;background:var(--warn)}
+
+.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.back{display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:500;color:var(--ink);background:#fff;border:1px solid var(--line);padding:9px 14px;border-radius:12px;box-shadow:0 1px 2px rgba(20,50,80,.06)}
+.back:active{transform:scale(.98)}
+.top h2{font-size:17px;font-weight:700}
+.banner{background:var(--warn-bg);color:var(--warn);border:1px solid rgba(201,67,44,.18);font-size:13px;line-height:1.5;padding:8px 12px;border-radius:10px;margin-bottom:12px}
+.count{font-family:var(--mono);font-size:11px;letter-spacing:.12em;color:var(--cyan)}
+.name{font-size:24px;font-weight:700;margin-top:2px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.face{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:500;padding:2px 9px 2px 7px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2)}
+.face::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.face.palm{color:var(--palm)} .face.back{color:var(--back)}
+.where{font-size:14px;color:var(--ink2);margin-top:6px}
+.dots{display:flex;gap:6px;margin:14px 0}
+.dots button{flex:1;height:4px;border-radius:2px;background:rgba(19,32,44,.1)}
+.dots button.done{background:rgba(19,159,196,.45)} .dots button.on{background:var(--cyan)}
+.nav{display:flex;gap:10px}
+.nav button{flex:1;padding:12px 0;border-radius:12px;font-size:15px;font-weight:500}
+.nav .prev{background:#fff;border:1px solid var(--line)}
+.nav .next{background:var(--ink);color:#fff}
+.nav button:disabled{opacity:.4}
+.note{font-size:12px;color:var(--ink3);margin-top:12px;text-align:center}
+.hint{font-size:14px;color:var(--ink2);background:var(--cyan-soft);border:1px dashed rgba(19,159,196,.35);border-radius:12px;padding:12px;margin-bottom:14px}
+.pcard{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:14px}
+.pcard h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;color:var(--ink3);font-weight:500;margin:12px 0 8px}
+
+#modal{position:fixed;inset:0;background:rgba(19,32,44,.35);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);display:grid;place-items:center;padding:16px;z-index:10}
+#modal[hidden]{display:none}
+.mbox{background:rgba(255,255,255,.92);border:1px solid #fff;border-radius:20px;max-width:420px;width:100%;padding:22px 20px 18px;box-shadow:0 24px 60px rgba(10,30,50,.3)}
+.mbox h2{font-size:19px;font-weight:700;margin:4px 0 4px}
+.mbox .sub{font-size:13px;color:var(--ink2);margin-bottom:14px}
+.mbox ol{padding-left:20px;font-size:15px;line-height:1.8}
+.mbox .disc{margin-top:12px;font-size:13px;color:var(--warn);background:var(--warn-bg);padding:10px 12px;border-radius:10px;line-height:1.5}
+.mbox button{margin-top:16px;width:100%;padding:13px;border-radius:12px;background:var(--ink);color:#fff;font-size:16px;font-weight:500}
+</style>
+<script type="importmap">
+{"imports":{
+  "three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+  "three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+}}
+</script>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div class="brand"><div class="eyebrow">Hand Point Guide</div><h1>手穴導引</h1></div>
+    <div class="seg" id="handSeg" role="group" aria-label="手別">
+      <button data-hand="right">右手</button><button data-hand="left">左手</button>
+    </div>
+  </header>
+  <div id="stageWrap">
+    <div id="stage"><div id="loading">LOADING MODEL…</div></div>
+    <div class="hud"><i></i><i></i><i></i><i></i></div>
+    <div id="labels"></div>
+    <div class="viewbadge" id="viewBadge"></div>
+    <div class="viewbtns">
+      <button data-view="palm">看手心</button><button data-view="back">看手背</button>
+    </div>
+  </div>
+  <section id="sheet">
+    <nav class="tabs" role="tablist">
+      <button data-tab="symptom" role="tab">症狀挑選</button>
+      <button data-tab="browse" role="tab">穴位一覽</button>
+    </nav>
+    <div id="panel"></div>
+  </section>
+</div>
+
+<div id="modal" hidden>
+  <div class="mbox" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <div class="eyebrow">Before you start</div>
+    <h2 id="mTitle">使用前注意事項</h2>
+    <p class="sub">使用電子針灸儀前，請先確認以下事項</p>
+    <ol>
+      <li>進食或酒後一小時內請勿使用。</li>
+      <li>治療後請喝一大杯溫水。</li>
+      <li>治療後二小時內勿喝冰水或泡冷水。</li>
+      <li>3 歲以下幼兒請勿使用。</li>
+    </ol>
+    <p class="disc">本工具僅協助尋找手穴位置，並非醫療診斷或治療建議。症狀持續或加重，請儘速就醫。</p>
+    <button id="mOk">我已了解</button>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from 'three';
+import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+/* ================= 資料 =================
+   座標取自「常用穴位圖」右手範例，以手心視角（拇指在右）的圖面像素為準；
+   手背圖已水平翻轉對齊同一座標系。 */
+// at:[手指(0小指 1無名指 2中指 3食指 4拇指), 指根→指尖比例, 側向偏移px(+往拇指側)]；xy：手掌上的圖面座標
+const POINTS = [
+  // 手心
+  { id:'fei',       name:'肺點',     face:'palm', at:[[1,.68,0]],  where:'無名指上段' },
+  { id:'gan',       name:'肝點',     face:'palm', at:[[1,.46,0]],  where:'無名指中段' },
+  { id:'shen',      name:'腎點',     face:'palm', at:[[0,.62,-6]], where:'小指外側中段' },
+  { id:'mingmen',   name:'命門點',   face:'palm', at:[[0,.3,-3]],  where:'小指根部' },
+  { id:'xin',       name:'心點',     face:'palm', at:[[2,.74,0]],  where:'中指上段' },
+  { id:'sanjiao',   name:'三焦點',   face:'palm', at:[[2,.47,0]],  where:'中指中段' },
+  { id:'dachang',   name:'大腸點',   face:'palm', at:[[3,.7,0]],   where:'食指上段' },
+  { id:'xiaochang', name:'小腸點',   face:'palm', at:[[3,.42,0]],  where:'食指中段' },
+  { id:'kechuan',   name:'咳喘點',   face:'palm', xy:[[227,442]],  where:'食指與中指指根之間' },
+  { id:'xiaochuan', name:'哮喘新穴', face:'palm', xy:[[185,448]],  where:'無名指指根' },
+  { id:'wei',       name:'胃點',     face:'palm', xy:[[210,464]],  where:'掌心上方，中指正下方' },
+  { id:'changwei',  name:'腸胃痛點', face:'palm', xy:[[208,494]],  where:'掌心中央' },
+  { id:'pi',        name:'脾點',     face:'palm', at:[[4,.85,0]],  where:'拇指指腹' },
+  { id:'xiongtong', name:'胸痛點',   face:'palm', at:[[4,.38,0]],  where:'拇指根部' },
+  // 手背
+  { id:'touding',   name:'頭頂點',   face:'back', at:[[2,.5,0]],   where:'中指第二關節' },
+  { id:'qiantou',   name:'前頭點',   face:'back', at:[[3,.55,0]],  where:'食指第二關節' },
+  { id:'piantou',   name:'偏頭點',   face:'back', at:[[1,.5,0]],   where:'無名指第二關節' },
+  { id:'houtou',    name:'後頭點',   face:'back', at:[[0,.42,-6]], where:'小指外側' },
+  { id:'hukou',     name:'虎口點',   face:'back', xy:[[260,480]],  where:'拇指與食指之間的虎口' },
+  { id:'yan',       name:'眼點',     face:'back', at:[[4,.62,0]],  where:'拇指關節' },
+  { id:'xiong',     name:'胸點',     face:'back', at:[[4,.4,0]],   where:'拇指根部' },
+  { id:'tuire',     name:'退熱點',   face:'back', xy:[[199,440]],  where:'中指與無名指指根之間' },
+  { id:'yanhou',    name:'咽喉點',   face:'back', xy:[[228,442]],  where:'食指與中指指根之間' },
+  { id:'jian',      name:'肩點',     face:'back', xy:[[240,455]],  where:'食指根部下方' },
+  { id:'laozhen',   name:'落枕穴',   face:'back', xy:[[227,488]],  where:'食指與中指掌骨之間' },
+  { id:'zuogu',     name:'坐骨神經點', face:'back', xy:[[174,458]], where:'無名指與小指掌骨之間' },
+  { id:'jizhu',     name:'脊柱點',   face:'back', xy:[[158,482]],  where:'小指掌骨外側' },
+  { id:'yaotui',    name:'腰腿點',   face:'back', xy:[[238,508],[184,508]], where:'手背中下段，左右兩處' },
+  { id:'zhiyang',   name:'止癢點',   face:'back', xy:[[156,522]],  where:'小指側，靠近手腕' },
+];
+const P = Object.fromEntries(POINTS.map(p => [p.id, p]));
+
+const GROUPS = [
+  { title:'頭頸與神經', items:[
+    { name:'頭痛', pts:['touding','qiantou','piantou','houtou','hukou'] },
+    { name:'眩暈', pts:['sanjiao','pi','gan','shen'] },
+    { name:'失眠', pts:['xin','gan','shen','wei','houtou'] },
+    { name:'落枕', pts:['touding','laozhen'] },
+    { name:'肩頸痛', pts:['jian'] },
+    { name:'坐骨神經痛', pts:['zuogu','jizhu','yaotui'] },
+  ]},
+  { title:'腸胃', items:[
+    { name:'胃食道逆流', pts:['gan','pi','changwei'] },
+    { name:'胃痛', pts:['changwei','sanjiao'] },
+    { name:'便祕', pts:['fei','dachang','pi'] },
+    { name:'腹瀉', pts:['dachang','xiaochang','changwei'] },
+  ]},
+  { title:'呼吸與過敏', items:[
+    { name:'鼻過敏', pts:['fei','shen','pi','jizhu'] },
+    { name:'哮喘', pts:['fei','shen','xiaochuan','kechuan'] },
+    { name:'肺炎', pts:['fei','kechuan','yanhou'], serious:true },
+    { name:'蕁麻疹', pts:['fei','zhiyang'] },
+  ]},
+  { title:'眼睛', items:[
+    { name:'眼病', pts:['gan','shen','pi','yan'] },
+    { name:'青光眼', pts:['fei','gan','yan','tuire'] },
+  ]},
+  { title:'泌尿與婦科', items:[
+    { name:'頻尿、夜尿', pts:['shen'] },
+    { name:'月經不調', pts:['gan','shen','mingmen','pi','yaotui'] },
+    { name:'腎臟病', pts:['gan','shen','sanjiao','pi'], serious:true },
+  ]},
+  { title:'慢性病', items:[
+    { name:'高血壓', pts:['fei','gan','xin','shen','touding'], serious:true },
+    { name:'高血脂', pts:['fei','shen','sanjiao','wei','pi'] },
+    { name:'糖尿病', pts:['fei','shen','wei','pi'], serious:true },
+    { name:'心臟病', pts:['xin','shen','xiaochang','wei','xiongtong','xiong'], serious:true },
+  ]},
+];
+const SYMPTOMS = GROUPS.flatMap(g => g.items);
+const usedBy = id => SYMPTOMS.filter(s => s.pts.includes(id));
+const FACE = { palm:'手心', back:'手背' };
+
+/* ================= 手的 SDF =================
+   以圖面像素定義（手心朝 +Z，右手拇指在 +X），再換算成世界單位。 */
+const S = 1/40, X = x => (x-215)*S, Y = y => (450-y)*S;
+const fingerDefs = [ // 關節點 [x,y,z(單位)] 與半徑(px)
+  // 五指呈扇形張開：中指最長、小指指根最低、拇指往外斜
+  { pts:[[160,452,0],[150,412,.03],[141,376,.09]], r:[9.6,8.6,7.6] },          // 小指
+  { pts:[[185,438,0],[181,386,.03],[177,334,.10]], r:[10.6,9.6,8.6] },         // 無名指
+  { pts:[[212,434,0],[214,378,.03],[216,320,.10]], r:[11,10,9] },              // 中指
+  { pts:[[243,440,0],[252,391,.03],[261,345,.10]], r:[10.6,9.6,8.6] },         // 食指
+  { pts:[[250,525,.06],[274,492,.16],[296,465,.22],[316,441,.25]], r:[15,12.5,11.2,10] }, // 拇指
+];
+// 沿手指折線取點（t：指根 0 → 指尖 1；lat：垂直偏移 px，正值往拇指側）
+function fp(fi, t, lat = 0) {
+  const pts = fingerDefs[fi].pts, L = [];
+  for (let i=0;i<pts.length-1;i++) L.push(Math.hypot(pts[i+1][0]-pts[i][0], pts[i+1][1]-pts[i][1]));
+  let d = t * L.reduce((a,b) => a+b, 0);
+  for (let i=0;i<L.length;i++) {
+    if (d <= L[i] || i === L.length-1) {
+      const a = pts[i], b = pts[i+1], u = Math.min(d/L[i], 1), dx = (b[0]-a[0])/L[i], dy = (b[1]-a[1])/L[i];
+      return [a[0]+(b[0]-a[0])*u - dy*lat, a[1]+(b[1]-a[1])*u + dx*lat];
+    }
+    d -= L[i];
+  }
+}
+const SEGS = [];
+for (const f of fingerDefs) {
+  for (let i = 0; i < f.pts.length-1; i++) {
+    const a = f.pts[i], b = f.pts[i+1];
+    SEGS.push({ ax:X(a[0]), ay:Y(a[1]), az:a[2], bx:X(b[0]), by:Y(b[1]), bz:b[2], ra:f.r[i]*S, rb:f.r[i+1]*S, k: i===0 ? .14 : .09 });
+  }
+}
+const PALM = { cx:X(203), cy:Y(488), hx:56*S, hy:63*S, hz:.29, rz:.22, rxy:.62, slant:.4 };
+const BLOBS = [ // 大魚際、小魚際
+  { cx:X(246), cy:Y(508), cz:.1, rx:27*S, ry:34*S, rz:.3 },
+  { cx:X(160), cy:Y(502), cz:.06, rx:15*S, ry:40*S, rz:.28 },
+];
+const ARM = { ax:X(205), ay:Y(560), by:Y(700), ra:35*S, rb:41*S, zs:1.5 };
+const YCUT = Y(648);
+
+function smin(a, b, k) { const h = Math.max(k - Math.abs(a-b), 0) / k; return Math.min(a, b) - h*h*k*.25; }
+function sdf(px, py, pz) {
+  // 手掌：XY 大圓角的長方形（上緣往小指側斜下），再以圓邊擠出厚度
+  const w = Math.min(Math.max((py-PALM.cy)/(PALM.hy*.8), 0), 1);
+  const pyw = py + Math.max(0, PALM.cx-px)*PALM.slant*w;
+  const qx = Math.abs(px-PALM.cx) - (PALM.hx-PALM.rxy), qy = Math.abs(pyw-PALM.cy) - (PALM.hy-PALM.rxy);
+  const d2 = Math.hypot(Math.max(qx,0), Math.max(qy,0)) + Math.min(Math.max(qx,qy), 0) - PALM.rxy;
+  const wx = d2 + PALM.rz, wy = Math.abs(pz) - PALM.hz + PALM.rz;
+  let d = Math.min(Math.max(wx,wy), 0) + Math.hypot(Math.max(wx,0), Math.max(wy,0)) - PALM.rz;
+  for (const b of BLOBS) {
+    const ux = (px-b.cx)/b.rx, uy = (py-b.cy)/b.ry, uz = (pz-b.cz)/b.rz;
+    const k0 = Math.hypot(ux,uy,uz), k1 = Math.hypot(ux/b.rx, uy/b.ry, uz/b.rz);
+    d = smin(d, k0*(k0-1)/k1, .2);
+  }
+  // 前臂（壓扁的圓錐）
+  {
+    const t = Math.min(Math.max((ARM.ay-py)/(ARM.ay-ARM.by), 0), 1);
+    const cy = ARM.ay + (ARM.by-ARM.ay)*t;
+    const dd = Math.hypot(px-ARM.ax, py-cy, pz*ARM.zs) - (ARM.ra + (ARM.rb-ARM.ra)*t);
+    d = smin(d, dd/1.25, .45);
+  }
+  for (const s of SEGS) {
+    const bax = s.bx-s.ax, bay = s.by-s.ay, baz = s.bz-s.az;
+    const pax = px-s.ax, pay = py-s.ay, paz = pz-s.az;
+    const h = Math.min(Math.max((pax*bax+pay*bay+paz*baz)/(bax*bax+bay*bay+baz*baz), 0), 1);
+    const dd = Math.hypot(pax-bax*h, pay-bay*h, paz-baz*h) - (s.ra + (s.rb-s.ra)*h);
+    d = smin(d, dd, s.k);
+  }
+  return Math.max(d, YCUT - py);
+}
+function grad(x, y, z) {
+  const e = .004;
+  const nx = sdf(x+e,y,z)-sdf(x-e,y,z), ny = sdf(x,y+e,z)-sdf(x,y-e,z), nz = sdf(x,y,z+e)-sdf(x,y,z-e);
+  const l = Math.hypot(nx,ny,nz) || 1; return [nx/l, ny/l, nz/l];
+}
+
+/* ================= Surface Nets 網格化 ================= */
+function buildHandGeometry() {
+  const step = .048, min = [X(128), Y(652), -.75], max = [X(328), Y(305), .85];
+  const nx = Math.ceil((max[0]-min[0])/step)+1, ny = Math.ceil((max[1]-min[1])/step)+1, nz = Math.ceil((max[2]-min[2])/step)+1;
+  const F = new Float32Array(nx*ny*nz), I = (i,j,k) => i + nx*(j + ny*k);
+  for (let k=0;k<nz;k++) for (let j=0;j<ny;j++) for (let i=0;i<nx;i++) F[I(i,j,k)] = sdf(min[0]+i*step, min[1]+j*step, min[2]+k*step);
+  const cx = nx-1, cy = ny-1, cz = nz-1, C = (i,j,k) => i + cx*(j + cy*k);
+  const cell = new Int32Array(cx*cy*cz).fill(-1);
+  const pos = [], nor = [];
+  const EDGES = []; for (let c=0;c<8;c++) for (const b of [1,2,4]) if (!(c&b)) EDGES.push([c, c|b]);
+  const v = new Float32Array(8);
+  for (let k=0;k<cz;k++) for (let j=0;j<cy;j++) for (let i=0;i<cx;i++) {
+    let mask = 0;
+    for (let c=0;c<8;c++) { v[c] = F[I(i+(c&1), j+((c>>1)&1), k+((c>>2)&1))]; if (v[c] < 0) mask |= 1<<c; }
+    if (mask === 0 || mask === 255) continue;
+    let sx=0, sy=0, sz=0, n=0;
+    for (const [a,b] of EDGES) {
+      if ((v[a]<0) === (v[b]<0)) continue;
+      const t = v[a]/(v[a]-v[b]);
+      sx += (a&1) + ((b&1)-(a&1))*t; sy += ((a>>1)&1) + (((b>>1)&1)-((a>>1)&1))*t; sz += ((a>>2)&1) + (((b>>2)&1)-((a>>2)&1))*t; n++;
+    }
+    const x = min[0]+(i+sx/n)*step, y = min[1]+(j+sy/n)*step, z = min[2]+(k+sz/n)*step;
+    cell[C(i,j,k)] = pos.length/3; pos.push(x,y,z); nor.push(...grad(x,y,z));
+  }
+  const idx = [];
+  const quad = (a,b,c,d,flip) => { if (a<0||b<0||c<0||d<0) return; if (flip) idx.push(a,d,c, a,c,b); else idx.push(a,b,c, a,c,d); };
+  for (let k=0;k<nz;k++) for (let j=0;j<ny;j++) for (let i=0;i<nx;i++) {
+    const inside = F[I(i,j,k)] < 0;
+    if (i<cx && j>0 && k>0 && j<cy && k<cz && inside !== (F[I(i+1,j,k)]<0))
+      quad(cell[C(i,j-1,k-1)], cell[C(i,j,k-1)], cell[C(i,j,k)], cell[C(i,j-1,k)], !inside);
+    if (j<cy && i>0 && k>0 && i<cx && k<cz && inside !== (F[I(i,j+1,k)]<0))
+      quad(cell[C(i-1,j,k-1)], cell[C(i-1,j,k)], cell[C(i,j,k)], cell[C(i,j,k-1)], !inside);
+    if (k<cz && i>0 && j>0 && i<cx && j<cy && inside !== (F[I(i,j,k+1)]<0))
+      quad(cell[C(i-1,j-1,k)], cell[C(i,j-1,k)], cell[C(i,j,k)], cell[C(i-1,j,k)], !inside);
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+  g.setIndex(idx);
+  return g;
+}
+
+/* 從手心或手背垂直投射，找到表面上的點 */
+function trace(ox, oy, face) {
+  const dz = face === 'palm' ? -1 : 1; let z = -dz*1.6;
+  for (let i=0;i<300;i++) { const d = sdf(ox,oy,z); if (d < .0015) return [ox,oy,z]; z += dz*Math.max(d*.8,.003); if (Math.abs(z) > 1.7) break; }
+  return null;
+}
+function locate(x, y, face) {
+  const ox = X(x), oy = Y(y);
+  let h = trace(ox, oy, face); if (h) return h;
+  for (let r=.02;r<.6;r+=.02) for (let a=0;a<24;a++) { const t = a/24*Math.PI*2; h = trace(ox+Math.cos(t)*r, oy+Math.sin(t)*r, face); if (h) return h; }
+  return [ox, oy, 0];
+}
+
+/* ================= Three.js 場景 ================= */
+const stage = document.getElementById('stage'), labelsEl = document.getElementById('labels');
+const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true });
+renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+renderer.outputColorSpace = THREE.SRGBColorSpace;
+renderer.toneMapping = THREE.ACESFilmicToneMapping; renderer.toneMappingExposure = 1.05;
+stage.prepend(renderer.domElement);
+const scene = new THREE.Scene();
+const camera = new THREE.PerspectiveCamera(32, 1, .1, 100);
+const controls = new OrbitControls(camera, renderer.domElement);
+controls.enablePan = false; controls.enableDamping = true; controls.dampingFactor = .08;
+controls.minDistance = 3; controls.maxDistance = 22; controls.autoRotateSpeed = 1.2;
+
+scene.add(new THREE.HemisphereLight(0xfff3e6, 0xb07a5c, 1.25));
+const key = new THREE.DirectionalLight(0xfff0e0, 1.6); key.position.set(-3, 5, 6); scene.add(key);
+const fill = new THREE.DirectionalLight(0xffe2cc, .9); fill.position.set(4, 1, -6); scene.add(fill);
+const rim = new THREE.DirectionalLight(0xffd2b0, .7); rim.position.set(0, -4, 3); scene.add(rim);
+
+const hand = new THREE.Group(); scene.add(hand);
+const CENTER = new THREE.Vector3(X(222), Y(468), 0);
+
+function glowTexture() {
+  const c = document.createElement('canvas'); c.width = c.height = 128;
+  const g = c.getContext('2d'), gr = g.createRadialGradient(64,64,0,64,64,64);
+  gr.addColorStop(0,'rgba(255,150,100,1)'); gr.addColorStop(.3,'rgba(255,106,61,.5)'); gr.addColorStop(1,'rgba(255,106,61,0)');
+  g.fillStyle = gr; g.fillRect(0,0,128,128);
+  const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; return t;
+}
+const GLOW = glowTexture();
+const markers = {}; // id -> { spots:[{pos,nor,dot,halo}], ... }
+let handMesh, handMat;
+
+function buildScene() {
+  const geo = buildHandGeometry();
+  // 深度預寫：讓透明的手仍能遮住背面的手穴
+  handMesh = new THREE.Mesh(geo, new THREE.MeshBasicMaterial({ colorWrite:false }));
+  handMesh.renderOrder = 0; hand.add(handMesh);
+  // 玻璃質感：菲涅耳邊緣光 + 緩慢掃描帶
+  handMat = new THREE.ShaderMaterial({
+    transparent:true, depthWrite:false,
+    uniforms:{ uTime:{ value:0 } },
+    vertexShader:`
+      varying vec3 vN; varying vec3 vV; varying float vY;
+      void main(){
+        vec4 mv = modelViewMatrix * vec4(position,1.);
+        vN = normalize(normalMatrix * normal); vV = -mv.xyz; vY = position.y;
+        gl_Position = projectionMatrix * mv;
+      }`,
+    fragmentShader:`
+      uniform float uTime; varying vec3 vN; varying vec3 vV; varying float vY;
+      void main(){
+        vec3 n = normalize(vN), v = normalize(vV);
+        float f = pow(1. - abs(dot(n, v)), 2.4);
+        float l = .55 + .45 * dot(n, normalize(vec3(-.35,.6,.7)));
+        vec3 body = vec3(.72,.88,.95) * (.84 + .16*l);
+        vec3 rim = vec3(.07,.62,.80);
+        float scan = exp(-pow((vY - (mod(uTime*1.1, 11.) - 5.5)) * 2.6, 2.));
+        vec3 col = mix(body, rim, f) + rim * scan * .1;
+        gl_FragColor = vec4(col, .72 + f*.26 + scan*.04);
+      }`,
+  });
+  const glass = new THREE.Mesh(geo, handMat); glass.renderOrder = 1; hand.add(glass);
+
+  // 內部骨架線：淡淡透出，呼應醫學影像感
+  const bonePts = [];
+  for (const f of fingerDefs) {
+    const base = f.pts[0];
+    bonePts.push(X(205+(base[0]-205)*.55), Y(560), 0, X(base[0]), Y(base[1]), base[2]);
+    for (let i=0;i<f.pts.length-1;i++) { const a=f.pts[i], b=f.pts[i+1]; bonePts.push(X(a[0]),Y(a[1]),a[2], X(b[0]),Y(b[1]),b[2]); }
+  }
+  const boneGeo = new THREE.BufferGeometry(); boneGeo.setAttribute('position', new THREE.Float32BufferAttribute(bonePts, 3));
+  const bones = new THREE.LineSegments(boneGeo, new THREE.LineBasicMaterial({ color:0x139fc4, transparent:true, opacity:.35, depthTest:false }));
+  bones.renderOrder = -1; hand.add(bones);
+
+  // 掌紋：感情線、智慧線、生命線，以及指節橫紋（貼在手心表面）
+  const creaseMat = new THREE.MeshBasicMaterial({ color:0x0b6f8c, transparent:true, opacity:.55, depthWrite:false });
+  const surfaceTube = (pts2d, radius, samples = 24) => {
+    const curve2 = new THREE.CatmullRomCurve3(pts2d.map(([x,y]) => new THREE.Vector3(x, y, 0)));
+    const pts = curve2.getPoints(samples).map(v => { const h = locate(v.x, v.y, 'palm'), n = grad(...h); return new THREE.Vector3(h[0]+n[0]*.012, h[1]+n[1]*.012, h[2]+n[2]*.012); });
+    const m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), samples*2, radius, 6), creaseMat);
+    m.renderOrder = 2; hand.add(m);
+  };
+  surfaceTube([[149,468],[173,465],[198,457],[220,450],[236,445]], .016);   // 感情線
+  surfaceTube([[257,470],[236,478],[213,487],[190,497],[170,507]], .016);   // 智慧線
+  surfaceTube([[255,475],[242,490],[234,510],[232,530],[235,548]], .016);   // 生命線
+  fingerDefs.forEach((f, fi) => {
+    const r = f.r[1];
+    for (const t of fi === 4 ? [.62] : [.36, .68])
+      surfaceTube([-.55,-.2,.2,.55].map(k => fp(fi, t, k*r)), .009, 6);
+  });
+
+  const dotGeo = new THREE.SphereGeometry(.07, 20, 12);
+  const hitGeo = new THREE.SphereGeometry(.24, 8, 6);
+  const hitMat = new THREE.MeshBasicMaterial({ transparent:true, opacity:0, depthWrite:false });
+  for (const p of POINTS) {
+    const spots = (p.xy || p.at.map(a => fp(...a))).map(([x,y]) => {
+      const h = locate(x, y, p.face), n = grad(...h);
+      const pos = new THREE.Vector3(h[0]+n[0]*.02, h[1]+n[1]*.02, h[2]+n[2]*.02), nor = new THREE.Vector3(...n);
+      const dot = new THREE.Mesh(dotGeo, new THREE.MeshBasicMaterial({ color:0xff6a3d })); dot.renderOrder = 2;
+      dot.position.copy(pos);
+      const halo = new THREE.Sprite(new THREE.SpriteMaterial({ map:GLOW, transparent:true, depthWrite:false })); halo.renderOrder = 3;
+      halo.position.copy(pos).addScaledVector(nor, .04); halo.scale.setScalar(.5); halo.visible = false;
+      const hit = new THREE.Mesh(hitGeo, hitMat); hit.position.copy(pos); hit.userData.id = p.id;
+      hand.add(dot, halo, hit);
+      return { pos, nor, dot, halo, hit };
+    });
+    markers[p.id] = { spots };
+  }
+}
+
+/* ================= 狀態 ================= */
+const store = {
+  get(k){ try { return localStorage.getItem(k); } catch { return null; } },
+  set(k,v){ try { localStorage.setItem(k,v); } catch {} },
+};
+const state = {
+  tab:'symptom', hand: store.get('hand') === 'left' ? 'left' : 'right',
+  symptom:null, step:0, selected:null,
+};
+
+function visibleIds() {
+  if (state.tab === 'symptom') return state.symptom ? state.symptom.pts : [];
+  return POINTS.map(p => p.id);
+}
+function activeId() {
+  if (state.tab === 'symptom') return state.symptom ? state.symptom.pts[state.step] : null;
+  return state.selected;
+}
+function refreshMarkers() {
+  const vis = new Set(visibleIds()), act = activeId();
+  for (const p of POINTS) for (const s of markers[p.id].spots) {
+    const on = vis.has(p.id), isAct = p.id === act;
+    s.dot.visible = on; s.hit.visible = on; s.halo.visible = isAct;
+    s.dot.scale.setScalar(isAct ? 1.35 : (state.tab === 'browse' ? .8 : 1));
+    s.dot.material.color.set(isAct ? 0xff5a28 : (state.tab === 'browse' && p.face === 'back' ? 0x7b61ff : 0xff6a3d));
+  }
+}
+
+/* ================= 鏡頭 ================= */
+let tween = null;
+function fitDistance() {
+  const a = camera.aspect, t = Math.tan(THREE.MathUtils.degToRad(camera.fov/2));
+  return Math.max((8.2/2)/t, (5.2/2)/(t*a));
+}
+function moveCamera(pos, target, ms = 700) {
+  tween = { p0:camera.position.clone(), t0:controls.target.clone(), p1:pos, t1:target, start:performance.now(), ms };
+}
+function viewFace(face, ms) {
+  const d = fitDistance(), z = face === 'palm' ? d : -d;
+  moveCamera(new THREE.Vector3(CENTER.x*hand.scale.x, CENTER.y + .4, z), CENTER.clone().setX(CENTER.x*hand.scale.x), ms);
+}
+function worldSpot(s) {
+  const p = s.pos.clone(); p.x *= hand.scale.x;
+  const n = s.nor.clone(); n.x *= hand.scale.x;
+  return { p, n };
+}
+function focus(id) {
+  const spots = markers[id].spots.map(worldSpot);
+  const p = spots.reduce((a,s) => a.add(s.p), new THREE.Vector3()).multiplyScalar(1/spots.length);
+  const n = spots.reduce((a,s) => a.add(s.n), new THREE.Vector3()).normalize();
+  // 鏡頭從手穴所在面正前方看過去，稍微拉遠以保留整隻手的位置感
+  const face = P[id].face === 'palm' ? 1 : -1;
+  const dir = new THREE.Vector3(n.x*.6, n.y*.4 + .15, face*1).normalize();
+  const dist = fitDistance()*.78;
+  const target = p.clone().lerp(CENTER.clone().setX(CENTER.x*hand.scale.x), .45);
+  moveCamera(target.clone().addScaledVector(dir, dist), target);
+}
+
+/* ================= 標籤 ================= */
+const tmp = new THREE.Vector3();
+function project(v) {
+  tmp.copy(v).project(camera);
+  const r = renderer.domElement.getBoundingClientRect();
+  return [(tmp.x*.5+.5)*r.width, (-tmp.y*.5+.5)*r.height];
+}
+function facing(s) {
+  const { p, n } = worldSpot(s);
+  return n.dot(tmp.copy(camera.position).sub(p)) > 0 ? p : null;
+}
+function drawLabels() {
+  let html = '';
+  if (state.tab === 'symptom' && state.symptom) {
+    state.symptom.pts.forEach((id, i) => {
+      if (i === state.step) return;
+      for (const s of markers[id].spots) {
+        const p = facing(s); if (!p) continue;
+        const [x,y] = project(p);
+        html += `<div class="num${i < state.step ? ' done' : ''}" style="transform:translate(${x}px,${y}px) translate(-50%,-50%)">${i+1}</div>`;
+      }
+    });
+  }
+  const act = activeId();
+  if (act) for (const s of markers[act].spots) {
+    const p = facing(s); if (!p) continue;
+    const [x,y] = project(p);
+    html += `<div class="tag" style="transform:translate(${x}px,${y}px) translate(-50%,-150%)">${P[act].name}</div>`;
+  }
+  labelsEl.innerHTML = html;
+  const toward = camera.position.z - controls.target.z;
+  document.getElementById('viewBadge').innerHTML = `VIEW <b>${state.hand === 'right' ? 'R' : 'L'} · ${toward >= 0 ? 'PALM' : 'BACK'}</b>　${state.hand === 'right' ? '右手' : '左手'}${toward >= 0 ? '手心' : '手背'}`;
+}
+
+/* ================= 介面 ================= */
+const panel = document.getElementById('panel');
+const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+function render() {
+  document.querySelectorAll('.tabs button').forEach(b => { b.classList.toggle('on', b.dataset.tab === state.tab); b.setAttribute('aria-selected', b.dataset.tab === state.tab); });
+  document.querySelectorAll('#handSeg button').forEach(b => b.classList.toggle('on', b.dataset.hand === state.hand));
+  if (state.tab === 'symptom') panel.innerHTML = state.symptom ? guideHTML() : listHTML();
+  else panel.innerHTML = browseHTML();
+  refreshMarkers();
+}
+function listHTML() {
+  return GROUPS.map(g => `<div class="group"><h3>${g.title}</h3><div class="chips">${
+    g.items.map(s => `<button class="chip" data-symptom="${esc(s.name)}">${esc(s.name)}${s.serious ? '<span class="dot" aria-label="請先就醫"></span>' : ''}</button>`).join('')
+  }</div></div>`).join('') + `<p class="legend"><span class="dot"></span>建議先就醫的症狀</p>`;
+}
+function guideHTML() {
+  const s = state.symptom, n = s.pts.length, i = state.step, p = P[s.pts[i]];
+  return `
+    <div class="top"><button class="back" data-act="list"><span aria-hidden="true">←</span>全部症狀</button><h2>${esc(s.name)}</h2></div>
+    ${s.serious ? `<div class="banner">此症狀請先就醫並遵從醫囑，本工具僅協助尋找手穴位置。</div>` : ''}
+    <div class="step"><div>
+      <div class="count">STEP ${String(i+1).padStart(2,'0')} / ${String(n).padStart(2,'0')}</div>
+      <div class="name">${esc(p.name)} <span class="face ${p.face}">${FACE[p.face]}</span></div>
+      <div class="where">位置：${esc(p.where)}</div>
+    </div></div>
+    <div class="dots">${s.pts.map((id,k) => `<button aria-label="第 ${k+1} 個：${esc(P[id].name)}" data-step="${k}" class="${k===i?'on':k<i?'done':''}"></button>`).join('')}</div>
+    <div class="nav">
+      <button class="prev" data-act="prev" ${i===0?'disabled':''}>上一個</button>
+      <button class="next" data-act="${i===n-1?'done':'next'}">${i===n-1?'完成':'下一個'}</button>
+    </div>
+    <p class="note">位置為約略參考，左右手互為鏡像。</p>`;
+}
+function browseHTML() {
+  const sel = state.selected && P[state.selected];
+  const card = sel ? `
+    <div class="pcard">
+      <div class="name">${esc(sel.name)} <span class="face ${sel.face}">${FACE[sel.face]}</span></div>
+      <div class="where">位置：${esc(sel.where)}</div>
+      <h4>會用到這個手穴的症狀</h4>
+      <div class="chips">${usedBy(sel.id).map(s => `<button class="chip sm" data-goto="${esc(s.name)}">${esc(s.name)} →</button>`).join('')}</div>
+    </div>` : `<div class="hint">點選手上的圓點，或從下方清單挑一個手穴。</div>`;
+  const list = f => `<div class="group"><h3>${FACE[f]}</h3><div class="chips">${
+    POINTS.filter(p => p.face === f).map(p => `<button class="chip sm${p.id===state.selected?' on':''}" data-point="${p.id}">${esc(p.name)}</button>`).join('')
+  }</div></div>`;
+  return card + list('palm') + list('back');
+}
+
+function selectSymptom(name, startId) {
+  const s = SYMPTOMS.find(x => x.name === name); if (!s) return;
+  state.tab = 'symptom'; state.symptom = s; state.step = Math.max(0, startId ? s.pts.indexOf(startId) : 0);
+  controls.autoRotate = false; render(); focus(s.pts[state.step]); panel.scrollTop = 0;
+}
+function setStep(i) { state.step = i; render(); focus(state.symptom.pts[i]); }
+function selectPoint(id) { state.selected = id; render(); focus(id); }
+
+panel.addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  if (b.dataset.symptom) return selectSymptom(b.dataset.symptom);
+  if (b.dataset.goto) return selectSymptom(b.dataset.goto, state.selected);
+  if (b.dataset.point) return selectPoint(b.dataset.point);
+  if (b.dataset.step) return setStep(+b.dataset.step);
+  const a = b.dataset.act;
+  if (a === 'list') { state.symptom = null; render(); viewFace('palm'); }
+  if (a === 'prev') setStep(state.step-1);
+  if (a === 'next') setStep(state.step+1);
+  if (a === 'done') { state.symptom = null; render(); viewFace('palm'); controls.autoRotate = true; }
+});
+document.querySelector('.tabs').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b || b.dataset.tab === state.tab) return;
+  state.tab = b.dataset.tab; controls.autoRotate = false; render(); panel.scrollTop = 0;
+  const act = activeId(); act ? focus(act) : viewFace('palm');
+});
+document.getElementById('handSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  state.hand = b.dataset.hand; store.set('hand', state.hand);
+  hand.scale.x = state.hand === 'left' ? -1 : 1; render();
+  const act = activeId(); act ? focus(act) : viewFace(camera.position.z - controls.target.z >= 0 ? 'palm' : 'back');
+});
+document.querySelector('.viewbtns').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return; controls.autoRotate = false; viewFace(b.dataset.view);
+});
+controls.addEventListener('start', () => { controls.autoRotate = false; tween = null; });
+
+// 點擊 3D 上的手穴
+const ray = new THREE.Raycaster(), ndc = new THREE.Vector2(); let down = null;
+renderer.domElement.addEventListener('pointerdown', e => { down = [e.clientX, e.clientY]; });
+renderer.domElement.addEventListener('pointerup', e => {
+  if (!down || Math.hypot(e.clientX-down[0], e.clientY-down[1]) > 6) return; down = null;
+  const r = renderer.domElement.getBoundingClientRect();
+  ndc.set(((e.clientX-r.left)/r.width)*2-1, -((e.clientY-r.top)/r.height)*2+1);
+  ray.setFromCamera(ndc, camera);
+  const handHit = ray.intersectObject(handMesh)[0];
+  const hits = ray.intersectObjects(hand.children.filter(o => o.userData.id && o.visible))
+    .filter(h => !handHit || h.distance <= handHit.distance + .15);
+  if (!hits.length) return;
+  const id = hits[0].object.userData.id;
+  if (state.tab === 'browse') selectPoint(id);
+  else if (state.symptom) setStep(state.symptom.pts.indexOf(id));
+});
+
+function resize() {
+  const r = stage.getBoundingClientRect();
+  renderer.setSize(r.width, r.height, false); camera.aspect = r.width / r.height; camera.updateProjectionMatrix();
+}
+new ResizeObserver(resize).observe(stage);
+
+const ease = t => t < .5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2;
+function loop(now) {
+  if (tween) {
+    const t = Math.min((now - tween.start)/tween.ms, 1), k = ease(t);
+    camera.position.lerpVectors(tween.p0, tween.p1, k); controls.target.lerpVectors(tween.t0, tween.t1, k);
+    if (t >= 1) tween = null;
+  }
+  controls.update();
+  if (handMat) handMat.uniforms.uTime.value = now/1000;
+  const act = activeId();
+  if (act) for (const s of markers[act].spots) s.halo.scale.setScalar(.42 + Math.sin(now/260)*.1);
+  renderer.render(scene, camera);
+  drawLabels();
+  requestAnimationFrame(loop);
+}
+
+/* ================= 啟動 ================= */
+const modal = document.getElementById('modal');
+if (store.get('noticeAck') !== '1') modal.hidden = false;
+document.getElementById('mOk').addEventListener('click', () => { modal.hidden = true; store.set('noticeAck', '1'); });
+
+setTimeout(() => {
+  buildScene();
+  hand.scale.x = state.hand === 'left' ? -1 : 1;
+  document.getElementById('loading').remove();
+  resize();
+  const d = fitDistance();
+  camera.position.set(CENTER.x*hand.scale.x, CENTER.y + .4, d); controls.target.copy(CENTER).setX(CENTER.x*hand.scale.x);
+  controls.autoRotate = true;
+  render();
+  requestAnimationFrame(loop);
+}, 30);
+</script>
+</body>
+</html>
